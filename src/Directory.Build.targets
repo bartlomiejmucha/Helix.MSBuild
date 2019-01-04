@@ -1,0 +1,3 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="WebRoot\Helix.MSBuild.Module.targets" />  
+</Project>
