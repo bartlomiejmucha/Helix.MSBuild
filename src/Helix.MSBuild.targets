@@ -35,8 +35,8 @@
       <Output TaskParameter="TargetOutputs" ItemName="ReferencesFromHelixModules" />
     </MSBuild>
     <ItemGroup>
-      <ReferencesFromHelixModulesThatAreAlreadyIncluded Include="@(ReferencesFromHelixModules)" Condition="'%(Identity)' != ''and '@(Reference)' != ''"></ReferencesFromHelixModulesThatAreAlreadyIncluded>
-      <ReferencesFromHelixModules Remove="@(ReferencesFromHelixModulesThatAreAlreadyIncluded)"/>
+      <ReferencesFromHelixModulesThatAreAlreadyIncluded Include="@(ReferencesFromHelixModules)" Condition="'%(Identity)' != '' and '@(Reference)' != ''"></ReferencesFromHelixModulesThatAreAlreadyIncluded>
+      <ReferencesFromHelixModules Remove="@(ReferencesFromHelixModulesThatAreAlreadyIncluded)" />
       <Reference Include="%(ReferencesFromHelixModules.Identity)">
         <HintPath>%(ReferencesFromHelixModules.HintPath)</HintPath>
       </Reference>
@@ -54,13 +54,15 @@
 
   <Target Name="CollectTransformFilesToApplyOnPublish">
     <MSBuild Projects="@(ProjectReference)" Targets="GetTransformFilesToApplyOnPublish" BuildInParallel="$(BuildInParallel)">
-      <Output TaskParameter="TargetOutputs" ItemName="TransformFilesToApplyOnPublish" />
+      <Output TaskParameter="TargetOutputs" ItemName="AllTransformFilesToApplyOnPublish" />
     </MSBuild>
     <ItemGroup>
+      <TransformFilesToApplyOnPublish Include="@(AllTransformFilesToApplyOnPublish)" Condition="$([System.String]::Copy('%(Filename)%(Extension)').EndsWith('.Helix%(Extension)')) == 'true'" />
+      <TransformFilesToApplyOnPublish Include="@(AllTransformFilesToApplyOnPublish)" Condition="$([System.String]::Copy('%(Filename)%(Extension)').EndsWith('.Helix.$(Configuration)%(Extension)')) == 'true'" />
+      <TransformFilesToApplyOnPublish Include="@(AllTransformFilesToApplyOnPublish)" Condition="'$(PublishProfileName)' != '' and $([System.String]::Copy('%(Filename)%(Extension)').EndsWith('.Helix.$(PublishProfileName)%(Extension)')) == 'true'" />
       <TransformFilesToApplyOnPublish>
         <TransformFile>%(FullPath)</TransformFile>
-        <TransformTargetFileName>%(Filename)</TransformTargetFileName>
-        <TransformTargetFileName Condition="$([System.String]::Copy('%(Filename)').EndsWith('.$(Configuration)')) == 'true'">$([System.IO.Path]::GetFileNameWithoutExtension(%(Filename)))</TransformTargetFileName>
+        <TransformTargetFileName>$([System.String]::Copy('%(Filename)%(Extension)').Substring(0, $([System.String]::Copy('%(Filename)%(Extension)').IndexOf('.Helix.'))))%(Extension)</TransformTargetFileName>
       </TransformFilesToApplyOnPublish>
       <TransformFilesToApplyOnPublish>
         <TargetPathToFileToTransform>$([System.IO.Path]::Combine($([System.IO.Path]::GetDirectoryName(%(TargetPath))),%(TransformTargetFileName)))</TargetPathToFileToTransform>
@@ -93,5 +95,5 @@
     <ExcludeFromPackageFiles Include="bin\$(MSBuildProjectName).dll.config" />
     <ExcludeFromPackageFiles Include="bin\$(MSBuildProjectName).pdb" />
   </ItemGroup>
-  
+
 </Project>

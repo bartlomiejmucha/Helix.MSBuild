@@ -13,15 +13,9 @@
 
   <!-- Transform files -->
 
-  <ItemDefinitionGroup>
-    <None>
-      <ApplyTransformOnPublish>false</ApplyTransformOnPublish>
-    </None>
-  </ItemDefinitionGroup>
-
   <Target Name="GetTransformFilesToApplyOnPublish" DependsOnTargets="PrepareForBuild;AssignTargetPaths" Returns="@(_TransformFilesToApplyOnPublish)">
     <ItemGroup>
-      <_TransformFilesToApplyOnPublish Include="@(_NoneWithTargetPath->'%(FullPath)')" Condition="'%(ApplyTransformOnPublish)' == 'true'"/>
+      <_TransformFilesToApplyOnPublish Include="@(_NoneWithTargetPath->'%(FullPath)')" Condition="$([System.String]::Copy('%(Filename)%(Extension)').Contains('.Helix.')) == 'true'" />
     </ItemGroup>
   </Target>
 
